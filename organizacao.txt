@@ -1,0 +1,12 @@
+projeto/
+├── main.js
+├── preload.js
+├── index.html
+├── index.js
+├── package.json
+└── server/
+    ├── server.js
+    └── public/
+        ├── display.html
+        ├── display.js
+        └── style.css

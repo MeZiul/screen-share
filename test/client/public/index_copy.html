@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self' http://localhost:3000;
+    script-src 'self' http://localhost:3000;
+    style-src 'self';
+    img-src 'self' data: http://localhost:3000;
+    connect-src 'self' ws://localhost:3000 http://localhost:3000;">
+    <meta charset="UTF-8" />
+    <title>Compartilhamento</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <input id="roomInput" placeholder="Código da sala" />
+    <button id="go" class="hidden">Entrar</button>
+
+    <h3>Preview do Compartilhador</h3>
+    <img id="preview" width="800" />
+
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="index_copy.js"></script>
+</body>
+
+</html>

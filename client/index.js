@@ -14,4 +14,5 @@ function stopShare() {
     window.electronAPI.stopShare();
     document.getElementById("stop").style.display = "none";
     document.getElementById("start").style.display = "block";
+    document.getElementById("code").innerHTML = "";
 }

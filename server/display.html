@@ -1,30 +1,177 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="pt-br">
+
 <head>
-    <title>Codeboard Screecast Viewer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Tela - Codeboard Screencast</title>
+    <link rel="stylesheet" href="./style.css">
 </head>
-<body style="background: linear-gradient(45deg, #7b0909, #6771b8b8);">
-    <img style="width: 90%; height: 90%; margin-top: 2%; margin-left: 5%"/>
+<style>
+    body {
+    margin: 0;
+    padding: 0;
+    background: #000;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" crossorigin="anonymous"></script>
+#container {
+    width: 95%;
+    max-width: 1600px;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #111;
+}
+
+#screen {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+}
+
+#overlay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+#input-room {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 10;
+}
+
+input {
+    padding: 10px;
+    font-size: 16px;
+    width: 250px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-top: 10px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #45a049;
+}
+</style>
+
+<body>
+
+    <div id="input-room">
+        <h2>Bem-vindo ao Visualizador</h2>
+        <p>Digite o código da sala (UUID):</p>
+        <input type="text" id="roomInput" placeholder="ex: a1b2c3d4-..." autocomplete="off">
+        <br>
+        <button onclick="joinRoom()">Entrar na Sala</button>
+    </div>
+
+    <div id="container" style="display: none;">
+        <img id="screen" alt="Tela compartilhada">
+        <div id="overlay">Aguardando transmissão...</div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
     <script>
+        const socket = io();
 
-        window.onload = function() {
-            var room = prompt("Please enter room ID : ");
-            if(room.trim().length == 0) {
-                document.write("<h1> Room ID is mandatory to join </h1>");
+        const inputRoomDiv = document.getElementById('input-room');
+        const container = document.getElementById('container');
+        const screenImg = document.getElementById('screen');
+        const overlay = document.getElementById('overlay');
+
+        let currentRoom = null;
+
+        function joinRoom() {
+            const roomInput = document.getElementById('roomInput');
+            let room = roomInput.value.trim();
+
+            if (!room) {
+                alert('Por favor, digite um código de sala válido!');
                 return;
             }
 
-            socket = io.connect('http://192.168.0.100:5000');
+            currentRoom = room;
+            overlay.textContent = `Conectando à sala: ${room}...`;
 
-            socket.emit("join-message", room);
-            socket.on('screen-data', function(message){
-                $("img").attr("src", "data:image/png;base64," + message);
+            inputRoomDiv.style.display = 'none';
+            container.style.display = 'block';
 
-            })
+            socket.emit('join-room', room);
+
+            console.log('Emitido join-room:', room);
+
+            socket.on('connect', () => {
+                console.log('Socket conectado ao servidor');
+            });
+
+            socket.on('sharer-connected', () => {
+                console.log('Compartilhador já está na sala');
+                overlay.textContent = 'Aguardando frames...';
+            });
+
+            socket.on('screen-data', (data) => {
+                console.log('Recebido evento screen-data:', typeof data, data?.length || 'objeto');
+
+                let base64Image;
+
+                if (typeof data === 'string') {
+                    base64Image = data;
+                } else if (data && data.image) {
+                    base64Image = data.image;
+                } else {
+                    console.error('Formato de dados inesperado:', data);
+                    return;
+                }
+
+                screenImg.src = 'data:image/jpeg;base64,' + base64Image;
+                overlay.textContent = `Ao vivo – Sala: ${room}`;
+            });
+
+            socket.on('sharer-disconnected', () => {
+                overlay.textContent = 'Transmissão encerrada.';
+                screenImg.src = '';
+            });
+
+            socket.on('disconnect', () => {
+                overlay.textContent = 'Desconectado do servidor.';
+            });
         }
 
+        document.getElementById('roomInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') joinRoom();
+        });
     </script>
 </body>
+
 </html>

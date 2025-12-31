@@ -39,24 +39,27 @@ app.on('activate', () => {
 ipcMain.on("start-share", function (event, arg) {
 
     const uuid = uuidv4();
-    socket.emit("join-message", uuid);
+    socket.emit("join-room", uuid);
     event.reply("uuid", uuid);
 
     clearInterval(interval);
 
-    interval = setInterval(function () {
+    interval = setInterval(() => {
         const monitors = Monitor.all();
 
-        let primaryMonitor = monitors.find(monitor => monitor.isPrimary || monitors[0]);
+        let primaryMonitor = monitors.find(monitor => monitor.isPrimary) || monitors[0];
         if (!primaryMonitor) return console.error("No monitors found");
 
-        primaryMonitor.captureImageSync((err, img) => {
-            if (err || !img) return console.error(err);
-            img.toJpeg(80, (err, jpegBuffer) => {
-                if (err) return console.error(err);
+        primaryMonitor.captureImage((err, img) => {
+            if (err || !img) { console.error("Erro ao capturar imagem:",err); return; }
+            img.toJpeg(60, (err, jpegBuffer) => {
+                if (err){ console.error("erro ao converter JPEG ",err) ; return; }
 
                 const imgStr = jpegBuffer.toString('base64');
                 const obj = { room: uuid, image: imgStr };
+
+                console.log(`Tamanho do frame: ${(imgStr.length / 1024).toFixed(1)} KB`);
+                
                 socket.emit("screen-data", obj);
             });
         });
