@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Viewer</title>
+</head>
+<body>
+
+    <input id="roomInput" placeholder="Sala">
+    <button id="joinBtn">Entrar</button>
+
+    <br><br>
+    <img id="preview" style="width:100%">
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const img = document.getElementById('preview');
+        const joinBtn = document.getElementById('joinBtn');
+        const roomInput = document.getElementById('roomInput');
+
+        joinBtn.onclick = () => {
+            const room = roomInput.value.trim();
+            if (!room) return;
+
+            socket.emit('join-room', room);
+        };
+
+        socket.on('screen-data', image => {
+            img.src = image;
+        });
+    </script>
+
+</body>
+</html>
