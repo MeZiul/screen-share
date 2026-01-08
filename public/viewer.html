@@ -1,35 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Viewer</title>
+  <meta charset="UTF-8">
+  <title>Assistir Tela Compartilhada</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div id="inputArea">
+    <label>Sala:</label>
+    <input type="text" id="salaInput" placeholder="Código da sala">
+    <button id="juntarBtn" style="display:none;">Entrar</button>
+    <button id="pararBtn">Parar de assistir</button>
+    <div id="status">Digite a sala para assistir</div>
+  </div>
 
-    <input id="roomInput" placeholder="Sala">
-    <button id="joinBtn">Entrar</button>
+  <img id="tela" alt="Aguardando transmissão...">
 
-    <br><br>
-    <img id="preview" style="width:100%">
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-        const img = document.getElementById('preview');
-        const joinBtn = document.getElementById('joinBtn');
-        const roomInput = document.getElementById('roomInput');
-
-        joinBtn.onclick = () => {
-            const room = roomInput.value.trim();
-            if (!room) return;
-
-            socket.emit('join-room', room);
-        };
-
-        socket.on('screen-data', image => {
-            img.src = image;
-        });
-    </script>
-
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="viewer.js"></script>
 </body>
 </html>

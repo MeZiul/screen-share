@@ -1,15 +1,29 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Compartilhar Tela</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <input id="roomInput" placeholder="Sala">
-    <button id="go">Entrar</button>
+<html lang="pt-BR">
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="app.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <title>Compartilhar Tela</title>
+  <style>
+    body {font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f0f0f0; }
+    input,button { padding: 12px; font-size: 16px; margin: 10px; border-radius: 6px; border: 1px solid #ccc; }
+    button { background: #007bff; color: white; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    #status { margin-top: 30px; font-size: 18px; min-height: 60px; }
+    .erro { color: red; }
+    .sucesso { color: green; }
+  </style>
+</head>
+
+<body>
+  <h1>Compartilhar Minha Tela</h1>
+  <input id="salaInput" placeholder="Digite o código da sala" autocomplete="off">
+  <button id="entrar" style="display: none;">Compartilhar Tela</button>
+
+  <div id="status"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
 </body>
+
 </html>

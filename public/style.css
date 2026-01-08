@@ -1,16 +1,54 @@
 body {
-  background: #111;
-  color: #fff;
+  margin: 0;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
   font-family: Arial, sans-serif;
-  text-align: center;
 }
 
-input, button {
+#tela {
+  max-width: 100%;
+  max-height: 100vh;
+  box-shadow: 0 0 20px rgba(0, 200, 255, 0.5);
+}
+
+#inputArea {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 15px;
+  border-radius: 10px;
+  color: white;
+  z-index: 10;
+  min-width: 200px;
+}
+
+#inputArea input,
+#inputArea button {
   padding: 8px;
-  margin: 80;
+  margin-top: 6px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-img {
-  border: 2px solid #444;
-  margin-top: 15px;
+#status {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #aaa;
+}
+
+#pararBtn {
+  background: #c62828;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: none;
+}
+
+#pararBtn:hover {
+  background: #e53935;
 }
