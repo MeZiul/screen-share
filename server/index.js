@@ -4,7 +4,11 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const ngrok = require('ngrok');
+let ngrok = null;
+if (process.env.USE_NGROK === 'true') {
+    try{ ngrok = require('ngrok');}
+    catch (err) {console.error('ngrok não instalado, ignorando...');}
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -18,6 +22,10 @@ const PORT = process.env.PORT || 3000;
 const isDev = process.env.NODE_ENV !== 'production';
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'viewer.html'));
+});
 
 app.get('/view/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'viewer.html'));
@@ -70,7 +78,7 @@ async function startNgrok() {
 
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`Servidor rodando na porta ${PORT}`);
-    if (isDev && process.env.USE_NGROK === 'true') {
+    if (isDev && ngrok) {
         startNgrok();
     }
 });
