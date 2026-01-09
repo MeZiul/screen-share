@@ -1,21 +1,20 @@
 {
   "name": "compartilhandotela",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Projeto de aprendizado para compartilhamento de tela usando Node.js e Socket.IO",
+  "main": "server/index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node server/index.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MeZiul/screen-share.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["nodejs", "socket.io", "screen-share", "aprendizado"],
+  "author": "Luiz Guilhermy",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
@@ -25,7 +24,9 @@
   "dependencies": {
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "ngrok": "^5.0.0-beta.2",
     "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "ngrok": "^5.0.0-beta.2"
   }
 }
