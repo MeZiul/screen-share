@@ -1,6 +1,7 @@
 body {
   margin: 0;
   background: #000;
+  color: rgb(6, 154, 195);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,11 +14,12 @@ body {
   max-width: 100%;
   max-height: 100vh;
   box-shadow: 0 0 20px rgba(0, 200, 255, 0.5);
+  transition: all 0.3s ease;
 }
 
 #inputArea {
   position: absolute;
-  top: 20px;
+  top: 50px;
   left: 20px;
   background: rgba(0, 0, 0, 0.85);
   padding: 15px;
@@ -25,6 +27,7 @@ body {
   color: white;
   z-index: 10;
   min-width: 200px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 #inputArea input,
@@ -33,6 +36,12 @@ body {
   margin-top: 6px;
   width: 100%;
   box-sizing: border-box;
+}
+
+#inputArea.hidden {
+  transform: translateX(-120%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 #status {
@@ -51,4 +60,25 @@ body {
 
 #pararBtn:hover {
   background: #e53935;
+}
+
+#toggleSidebar {
+  position: absolute;
+  top: 20px;
+  left: 35px;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  border: none;
+  padding: 8px 10px;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+#toggleSidebar:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+#toggleSidebar:active {
+  background: rgba(76, 76, 76, 0.9);
 }

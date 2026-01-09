@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({quiet: true});
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -36,10 +36,10 @@ io.on('connection', socket => {
     socket.on('disconnect', () => {
         console.log('Cliente desconectado:', socket.id);
     });
-});
-
 socket.on('leave-room', room => {
     socket.leave(room);
+});
+
 });
 
 async function startNgrok() {
@@ -60,7 +60,7 @@ async function startNgrok() {
     } catch (err) {
         console.error('Erro ao iniciar ngrok:', err.message);
         console.error('Dica: cadastre-se em ngrok.com, pegue o authtoken e rode: set NGROK_AUTHTOKEN=seu_token');
-    }// Erro ao iniciar ngrok: invalid tunnel configuration
+    }
 }
 
 server.listen(PORT, '0.0.0.0', () => {
