@@ -34,12 +34,12 @@ function atualizarUI(assistindo) {
     }
 }
 
-if (toggleBtn && sidebar) {
-    toggleBtn.addEventListener('click', () => {
-        const isHidden = sidebar.classList.toggle('hidden');
-        toggleBtn.textContent = isHidden ? '❯' : '☰';
-    });
-}
+
+toggleBtn?.addEventListener('click', () => {
+    const isHidden = sidebar.classList.toggle('hidden');
+    toggleBtn.textContent = isHidden ? '❯' : '☰';
+});
+
 
 salaInput.addEventListener('input', () => {
     salaInput.value.trim() ? mostrar(juntarBtn) : esconder(juntarBtn);
@@ -63,7 +63,7 @@ juntarBtn.addEventListener('click', () => {
 
 pararBtn.addEventListener('click', () => {
     if (!state.assistindo) return;
-    
+
     socket.emit('leave-room', state.salaAtual);
 
     state.salaAtual = null;
@@ -73,7 +73,7 @@ pararBtn.addEventListener('click', () => {
 
 socket.on('screen-data', imageData => {
     const agora = Date.now();
-    if (agora - state.ultimaAtualizacao < 50) return;
+    if (agora - state.ultimaAtualizacao < 40) return;
 
     state.ultimaAtualizacao = agora;
     img.src = imageData;
@@ -83,6 +83,56 @@ socket.on('screen-data', imageData => {
 socket.on('connect_error', () => {
     status.textContent = 'Erro de conexão com o servidor.';
     atualizarUI(false);
+});
+
+function getRoom() {
+    return state.salaAtual || salaInput.value.trim();
+}
+
+img.addEventListener('mousemove', e => {
+    if (!state.assistindo) return;
+    const rect = img.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    socket.emit('mouse-move', JSON.stringify({
+        room: getRoom(),
+        x: x / rect.width,
+        y: y / rect.height
+    }));
+});
+
+img.addEventListener('click', e => {
+    if (!state.assistindo) return;
+    const rect = img.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+
+    socket.emit('mouse-click', JSON.stringify({
+        room: getRoom(), x, y
+    }));
+});
+
+function moverCursorPara(x, y) {
+    socket.emit('mouse-move', JSON.stringify({
+        room: getRoom(),
+        x: x,
+        y: y
+    }));
+}
+
+window.addEventListener('keydown', e => {
+    if (!state.assistindo) return;
+    if (e.ctrlKey && e.key.toLowerCase() === 'r') return;
+
+    socket.emit('type', JSON.stringify({
+        room: getRoom(),
+        key: e.key,
+        code: e.code,
+        ctrl: e.ctrlKey,
+        shift: e.shiftKey,
+        alt: e.altKey
+    }));
 });
 
 window.addEventListener('beforeunload', () => {

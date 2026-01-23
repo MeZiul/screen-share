@@ -54,6 +54,25 @@ io.on('connection', socket => {
     socket.on('disconnect', () => {
         if (isDev) console.log('Desconectado:', socket.id);
     });
+
+    socket.on("mouse-move", data => {
+        const {sala, x, y} = JSON.parse(data);
+        socket.to(sala).emit("mouse-move", {x, y});
+    });
+
+    socket.on("mouse-click", data => {
+        const sala = JSON.parse(data);
+        socket.to(sala.room).emit("mouse-click", {});
+    });
+
+    socket.on("type", data => {
+        const sala = JSON.parse(data);
+        socket.to(sala.room).emit("type", sala);
+    });
+
+    socket.on("disconnect", () => {
+        if (isDev) console.log('Desconectado:', socket.id);
+    });
 });
 
 async function startNgrok() {

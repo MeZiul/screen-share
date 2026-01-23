@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io("localhost:3000");
 
 const entrarBtn = document.getElementById('entrar');
 const salaInput = document.getElementById('salaInput');
@@ -6,6 +6,9 @@ const status = document.getElementById('status');
 
 let intervaloCaptura = null;
 let streamAtual = null;
+let videoElement = null;
+let canvasElement = null;
+let ctx = null;
 
 salaInput.addEventListener('input', () => {
   entrarBtn.style.display = salaInput.value.trim() ? 'inline-block' : 'none';
@@ -24,42 +27,57 @@ function pararCompartilhamento() {
     streamAtual.getTracks().forEach(track => track.stop());
     streamAtual = null;
   }
-  status.innerHTML = '<p>Compartilhamento encerrado.</p>';
+  if (videoElement) {
+    videoElement.srcObject = null;
+    videoElement = null;
+  }
+  const room = salaInput.value.trim();
+  if (room) socket.emit('leave-room', room);
+
+  status.innerHTML = '<p>Compartilhamento parado.</p>';
+  entrarBtn.disabled = false;
 }
 
 entrarBtn.onclick = async () => {
   const room = salaInput.value.trim();
   if (!room) return;
 
+  entrarBtn.disabled = true;
   status.innerHTML = 'Aguardando permissão para capturar a tela...';
 
   try {
     const stream = await navigator.mediaDevices.getDisplayMedia({
-      video: { frameRate: { ideal: 15, max: 20 } },
+      video: { frameRate: { ideal: 15, max: 20 }, cursor: "always" },
       audio: false
     });
 
+    streamAtual = stream;
     socket.emit('join-room', room);
 
-    const video = document.createElement('video');
-    video.srcObject = stream;
-    video.muted = true;
-    video.play();
+    if (!videoElement) {
+      videoElement = document.createElement('video');
+      videoElement.muted = true;
+      videoElement.srcObject = stream;
+      videoElement.play().catch(console.error);
+    }
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    if (!canvasElement) {
+      canvasElement = document.createElement('canvas');
+      ctx = canvasElement.getContext('2d');
+    }
 
-    const interval = setInterval(() => {
-      if (video.videoWidth === 0 || video.videoHeight === 0) return;
+    intervaloCaptura = setInterval(() => {
+      if (videoElement.videoWidth === 0 || videoElement.videoHeight === 0) return;
 
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvasElement.width = videoElement.videoWidth;
+      canvasElement.height = videoElement.videoHeight;
 
-      const imagem = canvas.toDataURL('image/webp', 0.5);
+      ctx.drawImage(videoElement, 0, 0);
+
+      const imagem = canvasElement.toDataURL('image/webp', 0.62);
 
       socket.emit('screen-data', { room, image: imagem });
-    }, 150);
+    }, 80);
 
     status.innerHTML = `
       <p class="sucesso"><strong>Compartilhando tela na sala: ${room}</strong></p>
@@ -71,10 +89,14 @@ entrarBtn.onclick = async () => {
       <button onclick="pararCompartilhamento()">Parar compartilhamento</button>
     `;
 
-    stream.getVideoTracks()[0].addEventListener('ended', pararCompartilhamento);
+    stream.getVideoTracks()[0].addEventListener('ended', () => {
+      pararCompartilhamento();
+      status.innerHTML += '<p style="color:orange">Captura de tela interrompida pelo sistema.</p>';
+    });
 
   } catch (err) {
     console.error(err);
-    status.innerHTML = '<p style="color:red;">Permissão negada ou erro ao capturar tela.</p>';
+    status.innerHTML = '<p style="color:red;">Permissão negada ou erro na captura.</p>';
+    entrarBtn.disabled = false;
   }
 };
